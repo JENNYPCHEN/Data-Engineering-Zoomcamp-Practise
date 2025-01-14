@@ -100,5 +100,84 @@ In between 3 (exclusive) and 7 miles (inclusive),
 In between 7 (exclusive) and 10 miles (inclusive),
 Over 10 miles
 
+SELECT
+    SUM(CASE WHEN trip_distance <= 1 THEN 1 ELSE 0 END) AS "Up to 1 mile",
+    SUM(CASE WHEN trip_distance > 1 AND trip_distance <= 3 THEN 1 ELSE 0 END) AS "1 to 3 miles",
+    SUM(CASE WHEN trip_distance > 3 AND trip_distance <= 7 THEN 1 ELSE 0 END) AS "3 to 7 miles",
+    SUM(CASE WHEN trip_distance > 7 AND trip_distance <= 10 THEN 1 ELSE 0 END) AS "7 to 10 miles",
+    SUM(CASE WHEN trip_distance > 10 THEN 1 ELSE 0 END) AS "Over 10 miles"
+FROM green_taxi_trips
+WHERE lpep_pickup_datetime >= '2019-10-01' AND lpep_pickup_datetime < '2019-11-01';
+
+The answer is 100027	184314	82575	17019	16033
+"""
+"""
+Question 4. Longest trip for each day
+Which was the pick up day with the longest trip distance? Use the pick up time for your calculations.
+
+Tip: For every day, we only care about one single trip with the longest distance.
+
+2019-10-11
+2019-10-24
+2019-10-26
+2019-10-31
+
+SELECT
+    DATE(lpep_pickup_datetime) AS pickup_date,
+    MAX(trip_distance) AS longest_trip_distance
+FROM green_taxi_trips
+WHERE DATE(lpep_pickup_datetime) IN ('2019-10-11', '2019-10-24', '2019-10-26', '2019-10-31')
+GROUP BY pickup_date
+ORDER BY pickup_date;
+
+The answer is "2019-10-31"	515.89
+"""
+"""
+Question 5. Three biggest pickup zones
+Which were the top pickup locations with over 13,000 in total_amount (across all trips) for 2019-10-18?
+
+Consider only lpep_pickup_datetime when filtering by date.
+
+East Harlem North, East Harlem South, Morningside Heights
+East Harlem North, Morningside Heights
+Morningside Heights, Astoria Park, East Harlem South
+Bedford, East Harlem North, Astoria Park
+
+SELECT SUM(trip_distance), taxi_zones."Zone"
+FROM green_taxi_trips
+join taxi_zones on taxi_zones."LocationID" =green_taxi_trips."PULocationID"
+WHERE DATE(lpep_pickup_datetime) = '2019-10-18'
+GROUP BY taxi_zones."Zone"
+--Having SUM(trip_distance) >13000
+Order by sum(trip_distance) desc
+limit 3;
+
+None is over >13000, so the answer is None. If no such condition, the answer is East Harlem North, East Harlem South, Elmhurst
+
+"""
+"""
+Question 6. Largest tip
+For the passengers picked up in Ocrober 2019 in the zone name "East Harlem North" which was the drop off zone that had the largest tip?
+
+Note: it's tip , not trip
+
+We need the name of the zone, not the ID.
+
+Yorkville West
+JFK Airport
+East Harlem North
+East Harlem South
+
+SELECT SUM(tip_amount), dotz."Zone"
+FROM green_taxi_trips
+INNER JOIN taxi_zones dotz ON dotz."LocationID" = green_taxi_trips."DOLocationID"
+INNER JOIN taxi_zones pu ON pu."LocationID" = green_taxi_trips."PULocationID"
+WHERE DATE(lpep_pickup_datetime) BETWEEN '2019-10-01' AND '2019-10-31'
+AND pu."Zone" = 'East Harlem North'
+GROUP BY dotz."Zone"
+ORDER BY SUM(tip_amount) DESC
+LIMIT 3;
+
+Look like the answer is Upper East Side North, which is not in the option
 
 """
