@@ -198,16 +198,18 @@ LIMIT 3;
 #### Answer:
 ```
 JFK Airport
-
+```
 ## Question 7. Terraform Workflow
-
+```
 Which of the following sequences, respectively, describes the workflow for:
 
 Downloading the provider plugins and setting up backend,
 Generating proposed changes and auto-executing the plan
 Remove all resources managed by terraform`
-
+```
 #### Answer:
+```
 terraform init, terraform run -auto-approve, terraform destroy
+```
 
 
