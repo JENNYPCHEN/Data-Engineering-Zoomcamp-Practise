@@ -28,38 +28,29 @@ def main(params):
         with open(csv_name, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
 
+    # load the data into a pandas dataframe
+    df = pd.read_csv(csv_name)
+    print(f"Dataframe loaded with {len(df)} records")
+
+    # create a database connection
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
+    print("Database connection established")
 
-    df_iter = pd.read_csv(csv_name, iterator=True, chunksize=100000)
-    df_zones = pd.read_csv(zones_csv_name)
-
-    df = next(df_iter)
-
-    df.lpep_pickup_datetime = pd.to_datetime(df.lpep_pickup_datetime)
-    df.lpep_dropoff_datetime = pd.to_datetime(df.lpep_dropoff_datetime)
-
-    df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')
-    df_zones.to_sql(name='taxi_zones', con=engine, if_exists='replace')
-
-    df.to_sql(name=table_name, con=engine, if_exists='append')
-
-    while True:
-        try:
-            t_start = time()
-
-            df = next(df_iter)
-
-            df.lpep_pickup_datetime = pd.to_datetime(df.lpep_pickup_datetime)
-            df.lpep_dropoff_datetime = pd.to_datetime(df.lpep_dropoff_datetime)
-
-            df.to_sql(name=table_name, con=engine, if_exists='append')
-
-            t_end = time()
-
-            print('inserted another chunk, took %.3f second' % (t_end - t_start))
-        except StopIteration:
-            print('completed')
-            break
+    # load data into the database
+    df.to_sql(name=table_name, con=engine, if_exists='append', index=False)
+    print(f"Data loaded into table {table_name}")
 
 if __name__ == '__main__':
-    main(None)
+    parser = argparse.ArgumentParser(description='Ingest CSV data to Postgres')
+    parser.add_argument('--user', help='username for postgres')
+    parser.add_argument('--password', help='password for postgres')
+    parser.add_argument('--host', help='host for postgres')
+    parser.add_argument('--port', help='port for postgres')
+    parser.add_argument('--db', help='database name for postgres')
+    parser.add_argument('--table_name', help='name of the table where we will write the results to')
+    parser.add_argument('--url', help='url of the csv file')
+    parser.add_argument('--zones_url', help='url of the zones csv file')
+
+    args = parser.parse_args()
+
+    main(args)

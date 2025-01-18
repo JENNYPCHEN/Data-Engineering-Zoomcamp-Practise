@@ -1,11 +1,14 @@
 {
   "name": "My Codespace",
   "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/terraform:1": {}
+  },
   "hostRequirements": {
     "cpus": 4
   },
   "waitFor": "onCreateCommand",
-  "updateContentCommand": "python3 -m pip install -r requirements.txt && curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && apt-add-repository 'deb [arch=amd64] https://apt.releases.hashicorp.com focal main' && apt-get update && apt-get install terraform",
+  "updateContentCommand": "python3 -m pip install -r requirements.txt",
   "postCreateCommand": "",
   "dockerComposeFile": "docker-compose.yml",
   "service": "taxi_ingest",
@@ -21,6 +24,5 @@
         "ms-python.python"
       ]
     }
-  },
-  "runArgs": ["--volume=/var/lib/docker", "--privileged"]
+  }
 }
