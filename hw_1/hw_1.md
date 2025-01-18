@@ -209,7 +209,7 @@ Remove all resources managed by terraform`
 ```
 #### Answer:
 ```
-terraform init, terraform run -auto-approve, terraform destroy
+terraform init, terraform apply -auto-approve, terraform destroy
 ```
 
 
